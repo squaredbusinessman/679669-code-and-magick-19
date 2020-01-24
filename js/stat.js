@@ -19,130 +19,95 @@ var RESULT_RECT_INDENT = 50;
 var RESULT_PLAYER_COLOR = 'rgba(255, 0, 0, 1)';
 
 var drawRect = function (rectProps) {
-
   rectProps.ctx.fillStyle = rectProps.color;
   rectProps.ctx.fillRect(rectProps.x, rectProps.y, rectProps.width, rectProps.height);
-
 };
 
 var drawText = function (textProps) {
-
   textProps.ctx.font = textProps.font || CLOUD_TEXT_FONT;
   textProps.ctx.fillStyle = textProps.color || CLOUD_TEXT_CLR;
   textProps.ctx.fillText(textProps.text, textProps.x, textProps.y);
-
 };
 
 var getMaxValue = function (arr) {
-
   var maxValueElement = arr[0];
 
   for (var i = 1; i <= arr.length; i++) {
-
     if (arr[i] > maxValueElement) {
-
       maxValueElement = arr[i];
-
     }
-
   }
 
   return maxValueElement;
+};
 
+var getRandomHslColor = function () {
+  return 'hsl(240, ' + Math.random() * '100' + '%' + ', 50%)';
+};
+
+var renderHistogram = function (ctx, name, time, maxValue, index) {
+  var statisticsXCoordinate = CLOUD_COORDINATE.x + GAP + RESULT_RECT_INDENT + (GAP * 4 + RESULT_RECT_WIDTH) * index;
+
+  drawRect({
+    ctx: ctx,
+    color: (name === 'Вы') ? RESULT_PLAYER_COLOR : getRandomHslColor(),
+    x: statisticsXCoordinate,
+    y: CLOUD_HEIGHT - GAP * 2 - FONT_GAP,
+    width: RESULT_RECT_WIDTH,
+    height: Number(-(RESULT_RECT_HEIGHT * time / maxValue))
+  });
+
+  drawText({
+    ctx: ctx,
+    text: name,
+    x: statisticsXCoordinate,
+    y: CLOUD_HEIGHT - GAP
+  });
+
+  drawText({
+    ctx: ctx,
+    text: Math.round(time),
+    x: statisticsXCoordinate,
+    y: CLOUD_COORDINATE.y + GAP * 10
+  });
 };
 
 window.renderStatistics = function (ctx, names, times) {
-
   var textXCoordinate = CLOUD_COORDINATE.x + GAP * 2;
 
   drawRect({
-
     ctx: ctx,
     color: CLOUD_SHADOW_CLR,
     x: CLOUD_COORDINATE.x + GAP,
     y: CLOUD_COORDINATE.y + GAP,
     width: CLOUD_WIDTH,
     height: CLOUD_HEIGHT
-
   });
 
   drawRect({
-
     ctx: ctx,
     color: CLOUD_BG_CLR,
     x: CLOUD_COORDINATE.x,
     y: CLOUD_COORDINATE.y,
     width: CLOUD_WIDTH,
     height: CLOUD_HEIGHT
-
   });
 
   drawText({
-
     ctx: ctx,
     text: 'Ура Вы победили!',
     x: textXCoordinate,
     y: CLOUD_COORDINATE.y * 4
-
   });
 
   drawText({
-
     ctx: ctx,
     text: 'Список результатов:',
     x: textXCoordinate,
     y: CLOUD_COORDINATE.y * 6
-
   });
 
-  for (var j = 0; j < names.length; j++) {
-
-    var highValue = getMaxValue(times);
-
-    var statisticsXCoordinate = CLOUD_COORDINATE.x + GAP + RESULT_RECT_INDENT + (GAP * 4 + RESULT_RECT_WIDTH) * j;
-
-    var getRandomHslColor = function () {
-
-      var randomHslColor = 'hsl(240, ' + Math.random() * '100' + '%' + ', 50%)';
-
-      return randomHslColor;
-
-    };
-
-    for (var i = 0; i < players.length; i++) {
-
-      renderHistogram(ctx, names[i], times[i], getMaxValue(times), i);
-    };
-
-    drawRect({
-
-      ctx: ctx,
-      color: (names[j] === 'Вы') ? RESULT_PLAYER_COLOR : getRandomHslColor(),
-      x: statisticsXCoordinate,
-      y: CLOUD_HEIGHT - GAP * 2 - FONT_GAP,
-      width: RESULT_RECT_WIDTH,
-      height: Number(-(RESULT_RECT_HEIGHT * times[j] / highValue))
-
-    });
-
-    drawText({
-
-      ctx: ctx,
-      text: names[j],
-      x: statisticsXCoordinate,
-      y: CLOUD_HEIGHT - GAP
-
-    });
-
-    drawText({
-
-      ctx: ctx,
-      text: Math.round(times[j]),
-      x: statisticsXCoordinate,
-      y: CLOUD_COORDINATE.y + GAP * 10
-
-    });
-
+  for (var i = 0; i < names.length; i++) {
+    renderHistogram(ctx, names[i], times[i], getMaxValue(times), i);
   }
-
 };
